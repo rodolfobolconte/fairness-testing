@@ -1,0 +1,59 @@
+# features that should not be in prediction
+
+#id                                                  1.0
+#name                                   miguel hernandez
+#first                                            miguel
+#last                                          hernandez
+#compas_screening_date                        14/08/2013
+sex                                                Male
+#dob                                          18/04/1947
+age                                                  69
+age_cat                                 Greater than 45
+race                                              Other
+juv_fel_count                                         0
+decile_score                                          1
+juv_misd_count                                        0
+juv_other_count                                       0
+priors_count                                          0
+days_b_screening_arrest                            -1.0
+#c_jail_in                           2013-08-13 06:03:00
+#c_jail_out                          2013-08-14 05:41:00
+#c_case_number                             13011352CF10A
+#c_offense_date                               13/08/2013
+#c_arrest_date                                       NaN
+c_days_from_compas                                  1.0
+c_charge_degree                                    (F3)
+c_charge_desc              Aggravated Assault w/Firearm
+#is_recid                                              0
+#r_case_number                                       NaN
+r_charge_degree                                     NaN
+r_days_from_arrest                                  NaN
+#r_offense_date                                      NaN
+r_charge_desc                                       NaN
+#r_jail_in                                           NaN
+#r_jail_out                                          NaN
+#violent_recid                                       NaN
+is_violent_recid                                      0
+#vr_case_number                                      NaN
+vr_charge_degree                                    NaN
+#vr_offense_date                                     NaN
+vr_charge_desc                                      NaN
+#type_of_assessment                   Risk of Recidivism
+#decile_score.1                                        1
+#score_text                                          Low
+#screening_date                               14/08/2013
+#v_type_of_assessment                   Risk of Violence
+v_decile_score                                        1
+v_score_text                                        Low
+#v_screening_date                             14/08/2013
+#in_custody                                   07/07/2014
+#out_custody                                  14/07/2014
+#priors_count.1                                        0
+start                                                 0
+end                                                 327
+event                                                 0
+length_of_stay                          0 days 23:38:00
+score_factor                                   LowScore
+#y_pred                                            False
+
+['id', 'name', 'first', 'last', 'compas_screening_date', 'dob', 'c_jail_in', 'c_jail_out', 'c_case_number', 'c_offense_date', 'c_arrest_date', 'is_recid', 'r_case_number', 'r_offense_date', 'r_jail_in', 'r_jail_out', 'violent_recid', 'vr_case_number', 'vr_offense_date', 'type_of_assessment', 'decile_score.1', 'score_text', 'screening_date', 'v_type_of_assessment', 'v_screening_date', 'in_custody', 'out_custody', 'priors_count.1', 'y_pred']
