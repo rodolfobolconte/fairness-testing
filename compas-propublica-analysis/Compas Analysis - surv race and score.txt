@@ -1,0 +1,26 @@
+Surv(start, end, event, type="counting") ~ race_factor + race_factor * score_factor
+
+                                                     coef  exp(coef)   se(coef)      z Pr(>|z|) exp(coef) exp(-coef) lower .95 upper .95
+race_factorAfrican-American                     1.976e-01  1.219e+00  1.321e-01  1.497 0.134487 1.219e+00  8.207e-01   0.94065     1.578
+race_factorAsian                               -5.838e-01  5.577e-01  1.005e+00 -0.581 0.561115 5.577e-01  1.793e+00   0.07786     3.995
+race_factorHispanic                            -1.754e-01  8.391e-01  2.150e-01 -0.816 0.414623 8.391e-01  1.192e+00   0.55062     1.279
+race_factorNative American                     -1.304e+01  2.162e-06  7.607e+02 -0.017 0.986318 2.162e-06  4.625e+05   0.00000       Inf
+race_factorOther                               -4.459e-02  9.564e-01  2.433e-01 -0.183 0.854546 9.564e-01  1.046e+00   0.59370     1.541
+score_factorHigh                                1.250e+00  3.491e+00  1.720e-01  7.268 3.64e-13 3.491e+00  2.865e-01   2.49195     4.891
+score_factorMedium                              6.292e-01  1.876e+00  1.583e-01  3.976 7.02e-05 1.876e+00  5.330e-01   1.37575     2.558
+race_factorAfrican-American:score_factorHigh   -7.627e-03  9.924e-01  2.063e-01 -0.037 0.970513 9.924e-01  1.008e+00   0.66232     1.487
+race_factorAsian:score_factorHigh               1.552e+00  4.721e+00  1.425e+00  1.089 0.275997 4.721e+00  2.118e-01   0.28928    77.045
+race_factorHispanic:score_factorHigh            1.606e-01  1.174e+00  3.969e-01  0.405 0.685751 1.174e+00  8.516e-01   0.53939     2.556
+race_factorNative American:score_factorHigh     1.465e+01  2.307e+06  7.607e+02  0.019 0.984633 2.307e+06  4.334e-07   0.00000       Inf
+race_factorOther:score_factorHigh               1.440e+00  4.220e+00  4.037e-01  3.567 0.000361 4.220e+00  2.369e-01   1.91314     9.310
+race_factorAfrican-American:score_factorMedium  1.297e-01  1.139e+00  1.987e-01  0.653 0.513889 1.139e+00  8.783e-01   0.77125     1.681
+race_factorAsian:score_factorMedium             1.651e+00  5.211e+00  1.235e+00  1.337 0.181322 5.211e+00  1.919e-01   0.46315    58.627
+race_factorHispanic:score_factorMedium          4.632e-01  1.589e+00  3.430e-01  1.350 0.176860 1.589e+00  6.293e-01   0.81136     3.113
+race_factorNative American:score_factorMedium   1.343e+01  6.782e+05  7.607e+02  0.018 0.985917 6.782e+05  1.474e-06   0.00000       Inf
+race_factorOther:score_factorMedium            -1.562e-02  9.845e-01  4.916e-01 -0.032 0.974652 9.845e-01  1.016e+00   0.37560     2.581
+
+Concordance= 0.663  (se = 0.01 )
+Likelihood ratio test= 303  on 17 df,   p=<2e-16
+Wald test            = 317.9  on 17 df,   p=<2e-16
+Score (logrank) test = 387.1  on 17 df,   p=<2e-16
+

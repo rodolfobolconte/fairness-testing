@@ -1,0 +1,24 @@
+Observações:
+
+- tendência de queda nas pontuações de previsão de reincidência, na medida em que a pontuação aumenta, para pessoas brancas
+- réus negros são 45% mais propensos a receber pontuações altas de reincidência
+- mulheres são 19% mais propensas a obter uma pontuação mais alta
+- pessoas com menos de 25 anos tem 2,5 vezes mais chances de obter pontuação mais alta do que pessoas de meia-idade
+
+
+
+Cálculo de Riscos Proporcionais de Cox (modelos de sobrevivência):
+
+Criação de modelos de sobrevivência utilizando a quantidade de dias a partir da data de prisão (Tempo Inicial) até a data de liberação (Tempo de Falha).
+
+- score factor como variável de análise:
+    - pessoas classificadas como High tem 3,48 vezes mais de chances de reincidência
+    - concordância de 63,6%
+
+- decile score como variável de análise:
+    - concordância de 66%
+
+- [race_factor + score_factor + (race_factor * score_factor)] como variáveis de análise:
+    - réus brancos classificados como High tem 3,61 vezes mais de chances de reincidência do que réus brancos Low
+    - réus negros classificados como High tem 2,99 vezes mais de chances de reincidência do que réus negros Low
+    - concordância 64%
