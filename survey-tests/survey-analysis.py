@@ -58,18 +58,23 @@ lr.fit(x_train, y_train)
 
 y_pred = lr.predict(x_test)
 
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, accuracy_score, balanced_accuracy_score, precision_score, recall_score, f1_score
 
 cm = confusion_matrix_result = confusion_matrix(y_test, y_pred)
 accuracy = accuracy_score(y_test, y_pred)
+accuracy_balanced = balanced_accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
+f1score = f1_score(y_test, y_pred)
 
 logger.info(u'\nMetric Values of Logistic Regression Predictions:')
 logger.info(f'Confusion Matrix: TN({cm[0][0]}) | FN({cm[1][0]}) | TP({cm[1][1]}) | FP({cm[0][1]})')
 logger.info(f'Accuracy: {accuracy:.4f}')
+logger.info(f'Balanced Accuracy: {accuracy_balanced:.4f}')
 logger.info(f'Precision: {precision:.4f}')
 logger.info(f'Recall: {recall:.4f}')
+logger.info(f'F1-Score: {f1score:.4f}')
+
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -84,31 +89,138 @@ def graph_confusion_matrix(graph_title, confusion_matrix_result):
 
 graph_confusion_matrix(f'{args.dataset} predictions - confusion matrix', confusion_matrix_result)
 
-def graph_bar(graph_title, metrics_prevision):
-    labels = ['Accuracy', 'Precision', 'Recall']
+def graph_bar(graph_title, metrics):
+    labels = ['Accuracy',
+              'Balanced\nAccuracy',
+              'Precision',
+              'Recall',
+              'F1-Score',
+              'Statistical\nParity',
+              'Equalized\nOdds',
+              'TPR Prot',
+              'TPR Non-Prot',
+              'TNR Prot',
+              'TNR Non-Prot']
     plt.subplots(figsize=(9, 7))
     plt.title(graph_title + '\n', loc='center', fontsize=15)
-    plt.bar(labels, [metrics_prevision[0], metrics_prevision[1], metrics_prevision[2]], width=.5)
-    for index, data in enumerate([metrics_prevision[0], metrics_prevision[1], metrics_prevision[2]]):
-        plt.text(x=index-0.1, y=data-0.02, s=f"{data:.4f}" , fontdict=dict(fontsize=12), color='white')
-    plt.ylim(0.5,1.02)
+    plt.barh(labels[:5], metrics[:5], height=.5)
+    plt.barh(labels[5:], metrics[5:], height=.5)
+    plt.gca().invert_yaxis()
+    for index, value in enumerate(metrics):
+        plt.text(x=value-0.1, y=index+0.1, s=f"{value:.4f}" , fontdict=dict(fontsize=11), color='white')
+    plt.xlim(0.0,1.02)
     plt.savefig(f'{args.dataset}-metrics.png')
 
-graph_bar(f'{args.dataset} predictions - metrics', [accuracy, precision, recall])
 
-# def fairnessMetrics(y_test, y_pred):
-#     cm = confusion_matrix(y_test, y_pred)
-#     tn, fp, fn, tp = cm.ravel()
 
-#     tpr = tp/(tp+fn)
-#     fpr = fp/(tn+fp)
 
-#     #Equalized odds, TPR and FPR
-#     print(tpr, fpr)
-#     equalized_odds = tpr / fpr
 
-#     return equalized_odds
+def calculate_performance(data, labels, predictions, saIndex, saValue):
+    protected_pos = 0.
+    protected_neg = 0.
+    non_protected_pos = 0.
+    non_protected_neg = 0.
 
-# equalized_odds = fairnessMetrics(y_test, y_pred)
+    tp_protected = 0.
+    tn_protected = 0.
+    fp_protected = 0.
+    fn_protected = 0.
 
-# logger.info(f'Equalized Odds: {equalized_odds:.4f}')
+    tp_non_protected = 0.
+    tn_non_protected = 0.
+    fp_non_protected = 0.
+    fn_non_protected = 0.
+    for idx, val in enumerate(data):
+        # protrcted population
+        if val[saIndex] == saValue:
+            if predictions[idx] == 1:
+                protected_pos += 1.
+            else:
+                protected_neg += 1.
+
+
+            # correctly classified
+            if labels[idx] == predictions[idx]:
+                if labels[idx] == 1:
+                    tp_protected += 1.
+                else:
+                    tn_protected += 1.
+            # misclassified
+            else:
+                if labels[idx] == 1:
+                    fn_protected += 1.
+                else:
+                    fp_protected += 1.
+
+        else:
+            if predictions[idx] == 1:
+                non_protected_pos += 1.
+            else:
+                non_protected_neg += 1.
+
+            # correctly classified
+            if labels[idx] == predictions[idx]:
+                if labels[idx] == 1:
+                    tp_non_protected += 1.
+                else:
+                    tn_non_protected += 1.
+            # misclassified
+            else:
+                if labels[idx] == 1:
+                    fn_non_protected += 1.
+                else:
+                    fp_non_protected += 1.
+
+    tpr_protected = tp_protected / (tp_protected + fn_protected)
+    tnr_protected = tn_protected / (tn_protected + fp_protected)
+
+    tpr_non_protected = tp_non_protected / (tp_non_protected + fn_non_protected)
+    tnr_non_protected = tn_non_protected / (tn_non_protected + fp_non_protected)
+
+    C_prot = (protected_pos) / (protected_pos + protected_neg)
+    C_non_prot = (non_protected_pos) / (non_protected_pos + non_protected_neg)
+
+    stat_par = C_non_prot - C_prot
+
+    output = dict()
+
+    # output["balanced_accuracy"] = balanced_accuracy_score(labels, predictions)
+    # output["balanced_accuracy"] =( (tp_protected + tp_non_protected)/(tp_protected + tp_non_protected + fn_protected + fn_non_protected) +
+    #                                (tn_protected + tn_non_protected) / (tn_protected + tn_non_protected + fp_protected + fp_non_protected))*0.5
+
+    # output["accuracy"] = accuracy_score(labels, predictions)
+    # output["dTPR"] = tpr_non_protected - tpr_protected
+    # output["dTNR"] = tnr_non_protected - tnr_protected
+    # output["fairness"] = abs(tpr_non_protected - tpr_protected) + abs(tnr_non_protected - tnr_protected)
+    # output["fairness"] = abs(stat_par)
+    output['parity'] = stat_par
+    output['equalized'] = abs(tpr_non_protected - tpr_protected) + abs(tnr_non_protected - tnr_protected)
+
+    output["tpr_protected"] = tpr_protected
+    output["tpr_non_protected"] = tpr_non_protected
+    output["tnr_protected"] = tnr_protected
+    output["tnr_non_protected"] = tnr_non_protected
+    return output
+
+sa_index = x_test.keys().tolist().index(args.sensitive)
+p_group = 2
+
+manual_metrics = calculate_performance(x_test.values, y_test.values, y_pred, sa_index, p_group)
+logger.info(f'\nStatistical Parity: {manual_metrics["parity"]:.4f}')
+logger.info(f'Equalized Odds: {manual_metrics["equalized"]:.4f}')
+logger.info(f'TPR Protected: {manual_metrics["tpr_protected"]:.4f}')
+logger.info(f'TPR Non-Protected: {manual_metrics["tpr_non_protected"]:.4f}')
+logger.info(f'TNR Protected: {manual_metrics["tnr_protected"]:.4f}')
+logger.info(f'TNR Non-Protected: {manual_metrics["tnr_non_protected"]:.4f}')
+
+graph_bar(f'{args.dataset} predictions - metrics', [accuracy,
+                                                    accuracy_balanced,
+                                                    precision,
+                                                    recall,
+                                                    f1score,
+                                                    manual_metrics["parity"],
+                                                    manual_metrics["equalized"],
+                                                    manual_metrics["tpr_protected"],
+                                                    manual_metrics["tpr_non_protected"],
+                                                    manual_metrics["tnr_protected"],
+                                                    manual_metrics["tnr_non_protected"]])
