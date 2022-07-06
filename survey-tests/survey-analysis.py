@@ -1,24 +1,25 @@
-# passar dataset
-# retorna:
-#   txt com métricas
-#   png dos gráficos
-
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--dataset', type=str, default='', help='File dataset name.')
-parser.add_argument('-s', '--sensitive', type=str, default='', help='Sensitive column name.')
-parser.add_argument('-l', '--label', type=str, default='', help='Label column name.')
+parser.add_argument('-d', '--dataset', type=str, default=None, help='File dataset name.')
+parser.add_argument('-s', '--sensitive', type=str, default=None, help='Sensitive column name.')
+parser.add_argument('-l', '--label', type=str, default=None, help='Label column name.')
 parser.add_argument('-p', '--percentage', type=float, default=70, help='Percentage of dataset train. From 0 to 100.')
+parser.add_argument('-log', '--log_name', type=str, default='', help='File log name.')
+parser.add_argument('-m', '--mutate', type=str, default=None, help='Mutate columns.')
 args = parser.parse_args()
 
+if not args.dataset or not args.sensitive or not args.label:
+    print('Argumentos inválidos!')
+    exit()
 
 import logging
 
 def createLog():
     logger = logging.getLogger(None)
     logger.setLevel(logging.INFO)
-    fh = logging.FileHandler(args.dataset + '.log', "w")
+    if args.log_name: args.log_name = '-' + args.log_name
+    fh = logging.FileHandler(args.dataset + args.log_name + '.log', "w")
     logger.addHandler(fh)
 
     return logger
@@ -35,13 +36,24 @@ logger.info(f'Columns: {len(list(dataset.columns))} = {list(dataset.columns)}')
 logger.info(f'Lines: {len(dataset)}')
 qtd_label = dataset[f'{args.label}'].value_counts(sort=True)
 qtd_sensitive = dataset[f'{args.sensitive}'].value_counts(sort=True)
-logger.info(f'Quantities of Classes ({args.label}):\n{qtd_label}')
+logger.info(f'Number of Classes ({args.label}):\n{qtd_label}')
 logger.info(f'Quantities in the Sensitive Attribute ({args.sensitive}):\n{qtd_sensitive}')
 
 
 from sklearn.model_selection import train_test_split
 
+def mutateColumns(x):
+    if args.dataset == 'dutch-clean':
+        mutant_economic_status = {111:-111, 112:-112, 120:-120}
+        mutant_edu_level = {0:0, 1:1000, 2:2000, 3:3000, 4:4000, 5:5000}
+        mutant_sex = {1:-10, 2:-20}
+        x['economic_status'] = [mutant_economic_status[var] for var in x['economic_status']]
+        x['edu_level'] = [mutant_edu_level[var] for var in x['edu_level']]
+        # x['sex'] = [mutant_sex[var] for var in x['sex']]
+    return x
+
 x = dataset.drop([args.label], axis=1)
+if args.mutate: x = mutateColumns(x)
 y = dataset[args.label]
 x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=args.percentage/100)
 
@@ -204,6 +216,24 @@ def calculate_performance(data, labels, predictions, saIndex, saValue):
 
 sa_index = x_test.keys().tolist().index(args.sensitive)
 p_group = 2
+
+from fairlearn.metrics import *
+
+# print(x_test[args.sensitive])
+
+parity_difference = demographic_parity_difference(y_test, y_pred, sensitive_features=x_test[args.sensitive])
+parity_ratio = demographic_parity_ratio(y_test, y_pred, sensitive_features=x_test[args.sensitive])
+equalized_difference = equalized_odds_difference(y_test, y_pred, sensitive_features=x_test[args.sensitive])
+equalized_ratio = equalized_odds_ratio(y_test, y_pred, sensitive_features=x_test[args.sensitive])
+tnr = true_negative_rate(y_test, y_pred)
+tpr = true_positive_rate(y_test, y_pred)
+
+logger.info(f'\nstatistical_parity: {parity_difference:.4f}')
+logger.info(f'parity_ratio: {parity_ratio:.4f}')
+logger.info(f'equalized_odds: {equalized_difference:.4f}')
+logger.info(f'equalized_ratio: {equalized_ratio:.4f}')
+logger.info(f'tnr: {tnr:.4f}')
+logger.info(f'tpr: {tpr:.4f}')
 
 manual_metrics = calculate_performance(x_test.values, y_test.values, y_pred, sa_index, p_group)
 logger.info(f'\nStatistical Parity: {manual_metrics["parity"]:.4f}')
